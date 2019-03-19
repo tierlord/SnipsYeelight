@@ -44,7 +44,7 @@ def action_wrapper(hermes, intentMessage, conf):
         if request == "aus":
             bulb.turn_off()
         msg = "Okay. Schalte Licht " + request + "."
-        else:
+    else:
         msg = "Konnte mich nicht mit der Lampe verbinden."
 
     current_session_id = intentMessage.session_id
