@@ -1,19 +1,51 @@
-from yeelight import Bulb
-try:
-  bulb = Bulb("192.168.0.108")
-except:
-  print("Could not connect to bulb")
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-request = intentMessage.slots.onOff.first().value
+import configparser
+from hermes_python.hermes import Hermes
+from hermes_python.ffi.utils import MqttOptions
+from hermes_python.ontology import *
+import io
 
-if bulb:
-  if request == "an":
-    bulb.turn_on()
-  if request == "aus":
-    bulb.turn_off()
-  msg = "Okay. Schalte Licht " + request + "."
-else:
-  msg = "Konnte mich nicht mit der Lampe verbinden."
+CONFIGURATION_ENCODING_FORMAT = "utf-8"
+CONFIG_INI = "config.ini"
 
-current_session_id = intentMessage.session_id
-hermes.publish_end_session(current_session_id, text=msg)
+class SnipsConfigParser(configparser.SafeConfigParser):
+    def to_dict(self):
+        return {section : {option_name : option for option_name, option in self.items(section)} for section in self.sections()}
+
+
+def read_configuration_file(configuration_file):
+    try:
+        with io.open(configuration_file, encoding=CONFIGURATION_ENCODING_FORMAT) as f:
+            conf_parser = SnipsConfigParser()
+            conf_parser.readfp(f)
+            return conf_parser.to_dict()
+    except (IOError, configparser.Error) as e:
+        return dict()
+
+def subscribe_intent_callback(hermes, intentMessage):
+    conf = read_configuration_file(CONFIG_INI)
+    action_wrapper(hermes, intentMessage, conf)
+
+
+def action_wrapper(hermes, intentMessage, conf):
+    from yeelight import Bulb
+    try:
+        bulb = Bulb("192.168.0.108")
+    except:
+        print("Could not connect to bulb")
+
+    request = intentMessage.slots.onOff.first().value
+
+    if bulb is not None:
+        if request == "an":
+            bulb.turn_on()
+        if request == "aus":
+            bulb.turn_off()
+        msg = "Okay. Schalte Licht " + request + "."
+        else:
+        msg = "Konnte mich nicht mit der Lampe verbinden."
+
+    current_session_id = intentMessage.session_id
+    hermes.publish_end_session(current_session_id, text=msg)
