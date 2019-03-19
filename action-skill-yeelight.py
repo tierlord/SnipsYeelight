@@ -31,20 +31,17 @@ def subscribe_intent_callback(hermes, intentMessage):
 
 def action_wrapper(hermes, intentMessage, conf):
     from yeelight import Bulb
-    try:
-        bulb = Bulb("192.168.0.108")
-    except:
-        print("Could not connect to bulb")
+    bulb = Bulb("192.168.0.108")
 
     request = intentMessage.slots.onOff.first().value
 
-    if bulb is not None:
+    try:
         if request == "an":
             bulb.turn_on()
         if request == "aus":
             bulb.turn_off()
         msg = "Okay. Schalte Licht " + request + "."
-    else:
+    except:
         msg = "Konnte mich nicht mit der Lampe verbinden."
 
     current_session_id = intentMessage.session_id
