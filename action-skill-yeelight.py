@@ -6,7 +6,7 @@ import yeelight
 def subscribe_intent_callback(hermes, intent_message):
     intent = intent_message.intent.intent_name
 
-    intent = intent[:intent.index + 1]
+    intent = intent[:intent.index(':') + 1]
 
     bulb = yeelight.Bulb("192.168.0.108")
 
