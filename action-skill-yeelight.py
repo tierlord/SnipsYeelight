@@ -7,10 +7,10 @@ def subscribe_intent_callback(hermes, intent_message):
     intent = intent_message.intent.intent_name
 
     intent = intent[intent.index(':')+1:]
-
+    msg = "Was soll ich machen?"
     bulb = yeelight.Bulb("192.168.0.108")
 
-    if intent == "onOff":
+    if intent == "AnAus":
         request = intent_message.slots.onOff.first().value
 
         try:
@@ -22,7 +22,7 @@ def subscribe_intent_callback(hermes, intent_message):
         except:
             msg = "Konnte mich nicht mit der Lampe verbinden."
 
-    if intent == "farbe":
+    if intent == "LichtFarbe":
         request = intent_message.slots.farbe.first().value
 
         try:
