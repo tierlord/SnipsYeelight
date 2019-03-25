@@ -1,55 +1,52 @@
+
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
-import configparser
 from hermes_python.hermes import Hermes
-from hermes_python.ffi.utils import MqttOptions
-from hermes_python.ontology import *
-import io
+import yeelight
 
-CONFIGURATION_ENCODING_FORMAT = "utf-8"
-CONFIG_INI = "config.ini"
+def subscribe_intent_callback(hermes, intent_message):
+    intentname = intent_message.intent.intent_name
 
-class SnipsConfigParser(configparser.SafeConfigParser):
-    def to_dict(self):
-        return {section : {option_name : option for option_name, option in self.items(section)} for section in self.sections()}
+    bulb = yeelight.Bulb("192.168.0.108")
 
+    if intentname == "onOff":
+        request = intent_message.slots.onOff.first().value
 
-def read_configuration_file(configuration_file):
-    try:
-        with io.open(configuration_file, encoding=CONFIGURATION_ENCODING_FORMAT) as f:
-            conf_parser = SnipsConfigParser()
-            conf_parser.readfp(f)
-            return conf_parser.to_dict()
-    except (IOError, configparser.Error) as e:
-        return dict()
+        try:
+            if request == "an":
+                bulb.turn_on()
+            if request == "aus":
+                bulb.turn_off()
+            msg = "Okay. Schalte Licht " + request + "."
+        except:
+            msg = "Konnte mich nicht mit der Lampe verbinden."
 
-def subscribe_intent_callback(hermes, intentMessage):
-    conf = read_configuration_file(CONFIG_INI)
-    action_wrapper(hermes, intentMessage, conf)
+    if intentname == "farbe":
+        request = intent_message.slots.farbe.first().value
 
-
-def action_wrapper(hermes, intentMessage, conf):
-    from yeelight import Bulb
-    bulb = Bulb("192.168.0.108")
-
-    request = intentMessage.slots.onOff.first().value
-
-    try:
-        if request == "an":
-            bulb.turn_on()
-        if request == "aus":
-            bulb.turn_off()
-        msg = "Okay. Schalte Licht " + request + "."
-    except:
-        msg = "Konnte mich nicht mit der Lampe verbinden."
-
-    current_session_id = intentMessage.session_id
+        try:
+            if request == "weiß":
+                bulb.set_rgb(255, 255, 255)
+            if request == "warmweiß":
+                bulb.set_rgb(255, 240, 230)
+            if request == "hellblau":
+                bulb.set_rgb(20, 190, 255)
+            if request == "blau":
+                bulb.set_rgb(20, 30, 255)
+            if request == "pink":
+                bulb.set_rgb(255, 20, 240)
+            if request == "grün":
+                bulb.set_rgb(30, 255, 30)
+            if request == "rot":
+                bulb.set_rgb(255, 20, 20)
+            msg = "Habe das Licht in " + request + " umgeschaltet."
+        except:
+            msg = "Es gab einen Fehler. Ist die Lampe an?"
+            
+    current_session_id = intent_message.session_id
     hermes.publish_end_session(current_session_id, text=msg)
 
 
 if __name__ == "__main__":
-    mqtt_opts = MqttOptions()
-    with Hermes(mqtt_options=mqtt_opts) as h:
-        h.subscribe_intent("{{intent_id}}", subscribe_intent_callback) \
-         .start()
+    with Hermes("localhost:1883") as h:
+        h.subscribe_intents(subscribe_intent_callback).start()
