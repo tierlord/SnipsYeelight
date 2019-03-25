@@ -1,15 +1,16 @@
-
 #!/usr/bin/env python3
 
 from hermes_python.hermes import Hermes
 import yeelight
 
 def subscribe_intent_callback(hermes, intent_message):
-    intentname = intent_message.intent.intent_name
+    intent = intent_message.intent.intent_name
+
+    intent = intent[:intent.index + 1]
 
     bulb = yeelight.Bulb("192.168.0.108")
 
-    if intentname == "onOff":
+    if intent == "onOff":
         request = intent_message.slots.onOff.first().value
 
         try:
@@ -21,7 +22,7 @@ def subscribe_intent_callback(hermes, intent_message):
         except:
             msg = "Konnte mich nicht mit der Lampe verbinden."
 
-    if intentname == "farbe":
+    if intent == "farbe":
         request = intent_message.slots.farbe.first().value
 
         try:
@@ -42,7 +43,7 @@ def subscribe_intent_callback(hermes, intent_message):
             msg = "Habe das Licht in " + request + " umgeschaltet."
         except:
             msg = "Es gab einen Fehler. Ist die Lampe an?"
-            
+
     current_session_id = intent_message.session_id
     hermes.publish_end_session(current_session_id, text=msg)
 
