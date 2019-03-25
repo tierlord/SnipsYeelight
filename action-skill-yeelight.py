@@ -7,7 +7,7 @@ def subscribe_intent_callback(hermes, intent_message):
     intent = intent_message.intent.intent_name
 
     intent = intent[intent.index(':')+1:]
-    msg = "Was soll ich machen?"
+    msg = ""
     bulb = yeelight.Bulb("192.168.0.108")
 
     if intent == "AnAus":
@@ -29,7 +29,7 @@ def subscribe_intent_callback(hermes, intent_message):
             if request == "weiß":
                 bulb.set_rgb(255, 255, 255)
             if request == "warmweiß":
-                bulb.set_rgb(255, 240, 230)
+                bulb.set_rgb(255, 240, 190)
             if request == "hellblau":
                 bulb.set_rgb(20, 190, 255)
             if request == "blau":
