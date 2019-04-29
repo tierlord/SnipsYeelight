@@ -18,4 +18,4 @@ fi
 . $VENV/bin/activate
 
 pip install -r requirements.txt
-chmod +x /var/lib/snips/skills/SnipsProjectMensaParser/action-skill-yeelight.py
+chmod +x /var/lib/snips/skills/SnipsYeelight/action-skill-yeelight.py
