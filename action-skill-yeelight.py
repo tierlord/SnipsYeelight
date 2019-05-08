@@ -52,5 +52,5 @@ if __name__ == "__main__":
     with Hermes("localhost:1883") as h:
         h \
             .subscribe_intent("tierlord:AnAus", callback) \
-            .subscribe_intent("tierlord:LichtFarbe", callback)
+            .subscribe_intent("tierlord:LichtFarbe", callback) \
             .start()
